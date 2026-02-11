@@ -19,6 +19,7 @@ import {
 import { applyPrimaryModel, promptDefaultModel } from "../commands/model-picker.js";
 import { setupChannels } from "../commands/onboard-channels.js";
 import { promptCustomApiConfig } from "../commands/onboard-custom.js";
+import { setupMemoryEmbeddings } from "../commands/onboard-memory.js";
 import {
   applyWizardMetadata,
   DEFAULT_WORKSPACE,
@@ -415,6 +416,11 @@ export async function runOnboardingWizard(
     if (modelSelection.model) {
       nextConfig = applyPrimaryModel(nextConfig, modelSelection.model);
     }
+  }
+
+  // Configure memory embeddings (OpenAI or local model)
+  if (authChoiceFromPrompt && flow === "quick") {
+    nextConfig = await setupMemoryEmbeddings(nextConfig, runtime, prompter);
   }
 
   await warnIfModelConfigLooksOff(nextConfig, prompter);
