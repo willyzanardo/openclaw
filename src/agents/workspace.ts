@@ -255,10 +255,10 @@ export async function loadWorkspaceBootstrapFiles(dir: string): Promise<Workspac
     //   name: DEFAULT_TOOLS_FILENAME,
     //   filePath: path.join(resolvedDir, DEFAULT_TOOLS_FILENAME),
     // },
-    // {
-    //   name: DEFAULT_IDENTITY_FILENAME,
-    //   filePath: path.join(resolvedDir, DEFAULT_IDENTITY_FILENAME),
-    // },
+    {
+      name: DEFAULT_IDENTITY_FILENAME,
+      filePath: path.join(resolvedDir, DEFAULT_IDENTITY_FILENAME),
+    },
     // {
     //   name: DEFAULT_USER_FILENAME,
     //   filePath: path.join(resolvedDir, DEFAULT_USER_FILENAME),
