@@ -6,6 +6,7 @@ import type {
   ReplyDispatcherOptions,
   ReplyDispatcherWithTypingOptions,
 } from "./reply-dispatcher.js";
+import { setHasPendingWork } from "../../infra/heartbeat-wake.js";
 import {
   dispatchInboundMessageWithBufferedDispatcher,
   dispatchInboundMessageWithDispatcher,
@@ -18,6 +19,9 @@ export async function dispatchReplyWithBufferedBlockDispatcher(params: {
   replyOptions?: Omit<GetReplyOptions, "onToolResult" | "onBlockReply">;
   replyResolver?: typeof import("../reply.js").getReplyFromConfig;
 }): Promise<DispatchInboundResult> {
+  // Set pending work flag when a user message arrives
+  setHasPendingWork(true);
+
   return await dispatchInboundMessageWithBufferedDispatcher({
     ctx: params.ctx,
     cfg: params.cfg,

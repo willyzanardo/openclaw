@@ -10,6 +10,7 @@ let pendingReason: string | null = null;
 let scheduled = false;
 let running = false;
 let timer: NodeJS.Timeout | null = null;
+let hasPendingWork = false;
 
 const DEFAULT_COALESCE_MS = 250;
 const DEFAULT_RETRY_MS = 1_000;
@@ -73,4 +74,12 @@ export function hasHeartbeatWakeHandler() {
 
 export function hasPendingHeartbeatWake() {
   return pendingReason !== null || Boolean(timer) || scheduled;
+}
+
+export function setHasPendingWork(value: boolean) {
+  hasPendingWork = value;
+}
+
+export function getHasPendingWork(): boolean {
+  return hasPendingWork;
 }

@@ -376,32 +376,14 @@ export function buildAgentSystemPrompt(params: {
   if (promptMode === "none") {
     return "You are a personal assistant running inside OpenClaw.";
   }
+  const mandatoryInstructions = [
+    "On every new session read SOUL.md, IDENTITY.md, USER.md, TOOLS.md, HEARTBEAT.md if they exist, and incorporate their guidance.",
+    "FILE_ROUTER: - heartbeat → HEARTBEAT.md - prior work/todos → memory_search + memory_get - risky/external action → USER.md - environment details → TOOLS.md DEFAULT: do not read files.",
+  ];
 
   const lines = [
     "You are a personal assistant running inside OpenClaw.",
     "",
-    "## Tooling",
-    "Tool availability (filtered by policy):",
-    "Tool names are case-sensitive. Call tools exactly as listed.",
-    toolLines.length > 0
-      ? toolLines.join("\n")
-      : [
-          "Pi lists the standard tools above. This runtime enables:",
-          "- grep: search file contents for patterns",
-          "- find: find files by glob pattern",
-          "- ls: list directory contents",
-          "- apply_patch: apply multi-file patches",
-          `- ${execToolName}: run shell commands (supports background via yieldMs/background)`,
-          `- ${processToolName}: manage background exec sessions`,
-          "- browser: control OpenClaw's dedicated browser",
-          "- canvas: present/eval/snapshot the Canvas",
-          "- nodes: list/describe/notify/camera/screen on paired nodes",
-          "- cron: manage cron jobs and wake events (use for reminders; when scheduling a reminder, write the systemEvent text as something that will read like a reminder when it fires, and mention that it is a reminder depending on the time gap between setting and firing; include recent context in reminder text if appropriate)",
-          "- sessions_list: list sessions",
-          "- sessions_history: fetch session history",
-          "- sessions_send: send to another session",
-          '- session_status: show usage/time/model state and answer "what model are we using?"',
-        ].join("\n"),
     "TOOLS.md does not control tool availability; it is user guidance for how to use external tools.",
     "If a task is more complex or takes longer, spawn a sub-agent. It will do the work for you and ping you when it's done. You can always check up on it.",
     "",
@@ -412,16 +394,8 @@ export function buildAgentSystemPrompt(params: {
     "Use plain human language for narration unless in a technical context.",
     "",
     ...safetySection,
-    "## OpenClaw CLI Quick Reference",
-    "OpenClaw is controlled via subcommands. Do not invent commands.",
-    "To manage the Gateway daemon service (start/stop/restart):",
-    "- openclaw gateway status",
-    "- openclaw gateway start",
-    "- openclaw gateway stop",
-    "- openclaw gateway restart",
-    "If unsure, ask the user to run `openclaw help` (or `openclaw gateway --help`) and paste the output.",
     "",
-    ...skillsSection,
+    // ...skillsSection,
     ...memorySection,
     // Skip self-update for subagent/none modes
     hasGateway && !isMinimal ? "## OpenClaw Self-Update" : "",
@@ -436,16 +410,16 @@ export function buildAgentSystemPrompt(params: {
     hasGateway && !isMinimal ? "" : "",
     "",
     // Skip model aliases for subagent/none modes
-    params.modelAliasLines && params.modelAliasLines.length > 0 && !isMinimal
-      ? "## Model Aliases"
-      : "",
-    params.modelAliasLines && params.modelAliasLines.length > 0 && !isMinimal
-      ? "Prefer aliases when specifying model overrides; full provider/model is also accepted."
-      : "",
-    params.modelAliasLines && params.modelAliasLines.length > 0 && !isMinimal
-      ? params.modelAliasLines.join("\n")
-      : "",
-    params.modelAliasLines && params.modelAliasLines.length > 0 && !isMinimal ? "" : "",
+    // params.modelAliasLines && params.modelAliasLines.length > 0 && !isMinimal
+    //   ? "## Model Aliases"
+    //   : "",
+    // params.modelAliasLines && params.modelAliasLines.length > 0 && !isMinimal
+    //   ? "Prefer aliases when specifying model overrides; full provider/model is also accepted."
+    //   : "",
+    // params.modelAliasLines && params.modelAliasLines.length > 0 && !isMinimal
+    //   ? params.modelAliasLines.join("\n")
+    //   : "",
+    // params.modelAliasLines && params.modelAliasLines.length > 0 && !isMinimal ? "" : "",
     userTimezone
       ? "If you need the current date, time, or day of week, run session_status (📊 session_status)."
       : "",
@@ -454,7 +428,7 @@ export function buildAgentSystemPrompt(params: {
     "Treat this directory as the single global workspace for file operations unless explicitly instructed otherwise.",
     ...workspaceNotes,
     "",
-    ...docsSection,
+    // ...docsSection,
     params.sandboxInfo?.enabled ? "## Sandbox" : "",
     params.sandboxInfo?.enabled
       ? [
@@ -504,7 +478,7 @@ export function buildAgentSystemPrompt(params: {
     "## Workspace Files (injected)",
     "These user-editable files are loaded by OpenClaw and included below in Project Context.",
     "",
-    ...buildReplyTagsSection(isMinimal),
+    // ...buildReplyTagsSection(isMinimal),
     ...buildMessagingSection({
       isMinimal,
       availableTools,
@@ -548,7 +522,7 @@ export function buildAgentSystemPrompt(params: {
   if (reasoningHint) {
     lines.push("## Reasoning Format", reasoningHint, "");
   }
-
+  lines.push(...mandatoryInstructions);
   const contextFiles = params.contextFiles ?? [];
   if (contextFiles.length > 0) {
     const hasSoulFile = contextFiles.some((file) => {
@@ -587,17 +561,17 @@ export function buildAgentSystemPrompt(params: {
   }
 
   // Skip heartbeats for subagent/none modes
-  if (!isMinimal) {
-    lines.push(
-      "## Heartbeats",
-      heartbeatPromptLine,
-      "If you receive a heartbeat poll (a user message matching the heartbeat prompt above), and there is nothing that needs attention, reply exactly:",
-      "HEARTBEAT_OK",
-      'OpenClaw treats a leading/trailing "HEARTBEAT_OK" as a heartbeat ack (and may discard it).',
-      'If something needs attention, do NOT include "HEARTBEAT_OK"; reply with the alert text instead.',
-      "",
-    );
-  }
+  // if (!isMinimal) {
+  //   lines.push(
+  //     "## Heartbeats",
+  //     heartbeatPromptLine,
+  //     "If you receive a heartbeat poll (a user message matching the heartbeat prompt above), and there is nothing that needs attention, reply exactly:",
+  //     "HEARTBEAT_OK",
+  //     'OpenClaw treats a leading/trailing "HEARTBEAT_OK" as a heartbeat ack (and may discard it).',
+  //     'If something needs attention, do NOT include "HEARTBEAT_OK"; reply with the alert text instead.',
+  //     "",
+  //   );
+  // }
 
   lines.push(
     "## Runtime",

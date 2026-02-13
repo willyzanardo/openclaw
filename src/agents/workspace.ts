@@ -247,26 +247,26 @@ export async function loadWorkspaceBootstrapFiles(dir: string): Promise<Workspac
       name: DEFAULT_AGENTS_FILENAME,
       filePath: path.join(resolvedDir, DEFAULT_AGENTS_FILENAME),
     },
-    {
-      name: DEFAULT_SOUL_FILENAME,
-      filePath: path.join(resolvedDir, DEFAULT_SOUL_FILENAME),
-    },
-    {
-      name: DEFAULT_TOOLS_FILENAME,
-      filePath: path.join(resolvedDir, DEFAULT_TOOLS_FILENAME),
-    },
-    {
-      name: DEFAULT_IDENTITY_FILENAME,
-      filePath: path.join(resolvedDir, DEFAULT_IDENTITY_FILENAME),
-    },
-    {
-      name: DEFAULT_USER_FILENAME,
-      filePath: path.join(resolvedDir, DEFAULT_USER_FILENAME),
-    },
-    {
-      name: DEFAULT_HEARTBEAT_FILENAME,
-      filePath: path.join(resolvedDir, DEFAULT_HEARTBEAT_FILENAME),
-    },
+    // {
+    //   name: DEFAULT_SOUL_FILENAME,
+    //   filePath: path.join(resolvedDir, DEFAULT_SOUL_FILENAME),
+    // },
+    // {
+    //   name: DEFAULT_TOOLS_FILENAME,
+    //   filePath: path.join(resolvedDir, DEFAULT_TOOLS_FILENAME),
+    // },
+    // {
+    //   name: DEFAULT_IDENTITY_FILENAME,
+    //   filePath: path.join(resolvedDir, DEFAULT_IDENTITY_FILENAME),
+    // },
+    // {
+    //   name: DEFAULT_USER_FILENAME,
+    //   filePath: path.join(resolvedDir, DEFAULT_USER_FILENAME),
+    // },
+    // {
+    //   name: DEFAULT_HEARTBEAT_FILENAME,
+    //   filePath: path.join(resolvedDir, DEFAULT_HEARTBEAT_FILENAME),
+    // },
     {
       name: DEFAULT_BOOTSTRAP_FILENAME,
       filePath: path.join(resolvedDir, DEFAULT_BOOTSTRAP_FILENAME),

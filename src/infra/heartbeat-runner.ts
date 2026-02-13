@@ -977,6 +977,18 @@ export function startHeartbeatRunner(opts: {
 
     const reason = params?.reason;
     const isInterval = reason === "interval";
+
+    // Import the pending work state
+    const { getHasPendingWork, setHasPendingWork } = await import("./heartbeat-wake.js");
+
+    // Skip heartbeat if no pending work
+    if (isInterval && !getHasPendingWork()) {
+      return {
+        status: "skipped",
+        reason: "no-pending-work",
+      } satisfies HeartbeatRunResult;
+    }
+
     const startedAt = Date.now();
     const now = startedAt;
     let ran = false;
@@ -1006,7 +1018,10 @@ export function startHeartbeatRunner(opts: {
     }
 
     scheduleNext();
+
+    // Clear pending work flag after heartbeat completes
     if (ran) {
+      setHasPendingWork(false);
       return { status: "ran", durationMs: Date.now() - startedAt };
     }
     return { status: "skipped", reason: isInterval ? "not-due" : "disabled" };
