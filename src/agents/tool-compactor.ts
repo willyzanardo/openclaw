@@ -10,23 +10,21 @@ export function compactToolsForRequest<T extends { name: string; description: st
   tools: T[],
 ): T[] {
   return tools.map((tool) => {
-    // Keep the first sentence or up to 150 chars of the description
+    // Keep the first sentence or up to 100 chars of the description
     let shortDescription = tool.description;
-    if (shortDescription && shortDescription.length > 150) {
+    if (shortDescription && shortDescription.length > 100) {
       const firstSentence = shortDescription.split(/\.\s+/)[0];
-      if (firstSentence && firstSentence.length < 150) {
+      if (firstSentence && firstSentence.length < 100) {
         shortDescription = firstSentence + ".";
       } else {
-        shortDescription = shortDescription.slice(0, 147) + "...";
+        shortDescription = shortDescription.slice(0, 97) + "...";
       }
-      // Add note to read full docs
-      shortDescription += " Read tools.md for full details.";
     }
-
+    shortDescription += " Read tools.md for full details.";
     return {
-      ...tool,
+      name: tool.name,
       description: shortDescription,
-    };
+    } as T;
   });
 }
 

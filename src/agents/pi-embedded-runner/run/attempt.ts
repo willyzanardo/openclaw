@@ -22,7 +22,6 @@ import { resolveOpenClawAgentDir } from "../../agent-paths.js";
 import { resolveSessionAgentIds } from "../../agent-scope.js";
 import { createAnthropicPayloadLogger } from "../../anthropic-payload-log.js";
 import { makeBootstrapWarn, resolveBootstrapContextForRun } from "../../bootstrap-files.js";
-import { createRequestLogger } from "../../request-logger.js";
 import { createCacheTrace } from "../../cache-trace.js";
 import {
   listChannelSupportedActions,
@@ -45,6 +44,7 @@ import {
 } from "../../pi-settings.js";
 import { toClientToolDefinitions } from "../../pi-tool-definition-adapter.js";
 import { createOpenClawCodingTools } from "../../pi-tools.js";
+import { createRequestLogger } from "../../request-logger.js";
 import { resolveSandboxContext } from "../../sandbox.js";
 import { resolveSandboxRuntimeStatus } from "../../sandbox/runtime-status.js";
 import { repairSessionFileIfNeeded } from "../../session-file-repair.js";
@@ -59,6 +59,7 @@ import {
 } from "../../skills.js";
 import { buildSystemPromptParams } from "../../system-prompt-params.js";
 import { buildSystemPromptReport } from "../../system-prompt-report.js";
+import { createToolCompactWrapper } from "../../tool-compact-wrapper.js";
 import { resolveTranscriptPolicy } from "../../transcript-policy.js";
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../../workspace.js";
 import { isRunnerAbortError } from "../abort.js";
@@ -80,7 +81,6 @@ import {
 } from "../runs.js";
 import { buildEmbeddedSandboxInfo } from "../sandbox-info.js";
 import { prewarmSessionFile, trackSessionManagerAccess } from "../session-manager-cache.js";
-import { compactToolsForRequest, isToolCompactionEnabled } from "../../tool-compactor.js";
 import { prepareSessionManagerForRun } from "../session-manager-init.js";
 import {
   applySystemPromptOverrideToSession,
@@ -477,11 +477,6 @@ export async function runEmbeddedAttempt(
 
       const allCustomTools = [...customTools, ...clientToolDefs];
 
-      // Optionally compact tool descriptions to reduce token usage
-      const shouldCompact = isToolCompactionEnabled(process.env);
-      const finalBuiltInTools = shouldCompact ? compactToolsForRequest(builtInTools) : builtInTools;
-      const finalCustomTools = shouldCompact ? compactToolsForRequest(allCustomTools) : allCustomTools;
-
       ({ session } = await createAgentSession({
         cwd: resolvedWorkspace,
         agentDir,
@@ -489,8 +484,8 @@ export async function runEmbeddedAttempt(
         modelRegistry: params.modelRegistry,
         model: params.model,
         thinkingLevel: mapThinkingLevel(params.thinkLevel),
-        tools: finalBuiltInTools,
-        customTools: finalCustomTools,
+        tools: builtInTools,
+        customTools: allCustomTools,
         sessionManager,
         settingsManager,
       }));
@@ -527,6 +522,9 @@ export async function runEmbeddedAttempt(
         provider: params.provider,
         modelId: params.modelId,
       });
+      const toolCompactWrapper = createToolCompactWrapper({
+        env: process.env,
+      });
 
       // Force a stable streamFn reference so vitest can reliably mock @mariozechner/pi-ai.
       activeSession.agent.streamFn = streamSimple;
@@ -552,10 +550,13 @@ export async function runEmbeddedAttempt(
           activeSession.agent.streamFn,
         );
       }
-      if (requestLogger) {
-        activeSession.agent.streamFn = requestLogger.wrapStreamFn(
+      if (toolCompactWrapper) {
+        activeSession.agent.streamFn = toolCompactWrapper.wrapStreamFn(
           activeSession.agent.streamFn,
         );
+      }
+      if (requestLogger) {
+        activeSession.agent.streamFn = requestLogger.wrapStreamFn(activeSession.agent.streamFn);
       }
 
       try {
