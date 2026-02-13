@@ -80,6 +80,7 @@ import {
 } from "../runs.js";
 import { buildEmbeddedSandboxInfo } from "../sandbox-info.js";
 import { prewarmSessionFile, trackSessionManagerAccess } from "../session-manager-cache.js";
+import { compactToolsForRequest, isToolCompactionEnabled } from "../../tool-compactor.js";
 import { prepareSessionManagerForRun } from "../session-manager-init.js";
 import {
   applySystemPromptOverrideToSession,
@@ -476,6 +477,11 @@ export async function runEmbeddedAttempt(
 
       const allCustomTools = [...customTools, ...clientToolDefs];
 
+      // Optionally compact tool descriptions to reduce token usage
+      const shouldCompact = isToolCompactionEnabled(process.env);
+      const finalBuiltInTools = shouldCompact ? compactToolsForRequest(builtInTools) : builtInTools;
+      const finalCustomTools = shouldCompact ? compactToolsForRequest(allCustomTools) : allCustomTools;
+
       ({ session } = await createAgentSession({
         cwd: resolvedWorkspace,
         agentDir,
@@ -483,8 +489,8 @@ export async function runEmbeddedAttempt(
         modelRegistry: params.modelRegistry,
         model: params.model,
         thinkingLevel: mapThinkingLevel(params.thinkLevel),
-        tools: builtInTools,
-        customTools: allCustomTools,
+        tools: finalBuiltInTools,
+        customTools: finalCustomTools,
         sessionManager,
         settingsManager,
       }));

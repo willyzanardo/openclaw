@@ -7,6 +7,7 @@ Docs: https://docs.openclaw.ai
 ### Added
 
 - Logging: add `OPENCLAW_LOG_REQUESTS=1` environment variable to print full AI provider request payloads to the gateway console for debugging.
+- Logging: add `OPENCLAW_COMPACT_TOOLS=1` environment variable to truncate verbose tool descriptions in API requests, reducing token usage and costs.
 - Onboarding: add memory embeddings configuration to QuickStart wizard (OpenAI or local model).
 
 ## 2026.2.9

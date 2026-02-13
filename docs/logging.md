@@ -177,6 +177,21 @@ Full Request Payload:
 
 **Note:** This can produce very large console output. Only enable when actively debugging.
 
+### Reducing request payload size
+
+AI provider requests can become very large due to verbose tool descriptions. To reduce token usage and costs, enable tool compaction:
+
+```bash
+export OPENCLAW_COMPACT_TOOLS=1
+openclaw gateway restart
+```
+
+When enabled, tool descriptions are truncated to their first sentence (max 150 chars) with a note: "Read tools.md for full details." This significantly reduces the size of the `tools` array in API requests.
+
+The model can still access full tool documentation by reading the `tools.md` file in the workspace when needed.
+
+**Recommendation:** Enable this in production to reduce costs. Disable when debugging tool-related issues.
+
 ## Diagnostics + OpenTelemetry
 
 Diagnostics are structured, machine-readable events for model runs **and**
