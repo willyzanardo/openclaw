@@ -137,6 +137,46 @@ Tool summaries can redact sensitive tokens before they hit the console:
 
 Redaction affects **console output only** and does not alter file logs.
 
+### Debug logging: AI provider requests
+
+To debug what's being sent to AI providers, enable request logging:
+
+```bash
+export OPENCLAW_LOG_REQUESTS=1
+openclaw gateway restart
+```
+
+When enabled, the Gateway will print the full request payload (including system prompt, messages, tools, and all parameters) to the console before each API call to the model provider. This is useful for:
+
+- Understanding what context is being sent to the model
+- Debugging tool definitions and parameters
+- Verifying system prompt content
+- Troubleshooting API errors
+
+The output format is:
+
+```
+================================================================================
+🔍 AI PROVIDER REQUEST
+================================================================================
+Provider: anthropic
+Model: claude-3-5-sonnet-20241022
+Run ID: abc123
+Session ID: xyz789
+--------------------------------------------------------------------------------
+Full Request Payload:
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "max_tokens": 8192,
+  "system": [...],
+  "messages": [...],
+  "tools": [...]
+}
+================================================================================
+```
+
+**Note:** This can produce very large console output. Only enable when actively debugging.
+
 ## Diagnostics + OpenTelemetry
 
 Diagnostics are structured, machine-readable events for model runs **and**
