@@ -1,10 +1,14 @@
-import type { Tool } from "@mariozechner/pi-agent-core";
+import type { AgentTool } from "@mariozechner/pi-agent-core";
 
 /**
  * Compact tool definitions to reduce token usage in API requests.
  * Truncates long descriptions and adds a note to read full docs from tools.md.
+ *
+ * Uses a generic type to work with both AgentTool and ToolDefinition types.
  */
-export function compactToolsForRequest(tools: Tool[]): Tool[] {
+export function compactToolsForRequest<T extends { name: string; description: string }>(
+  tools: T[],
+): T[] {
   return tools.map((tool) => {
     // Keep the first sentence or up to 150 chars of the description
     let shortDescription = tool.description;
