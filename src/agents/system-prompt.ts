@@ -376,10 +376,10 @@ export function buildAgentSystemPrompt(params: {
   if (promptMode === "none") {
     return "You are a personal assistant running inside OpenClaw.";
   }
-  const mandatoryInstructions = [
-    "On every new session read SOUL.md, IDENTITY.md, USER.md, TOOLS.md, HEARTBEAT.md if they exist, and incorporate their guidance.",
-    "FILE_ROUTER: - heartbeat → HEARTBEAT.md - prior work/todos → memory_search + memory_get - risky/external action → USER.md - environment details → TOOLS.md DEFAULT: do not read files.",
-  ];
+  // const mandatoryInstructions = [
+  //   "On every new session read SOUL.md, IDENTITY.md, USER.md, TOOLS.md, HEARTBEAT.md if they exist, and incorporate their guidance.",
+  //   "FILE_ROUTER: - heartbeat → HEARTBEAT.md - prior work/todos → memory_search + memory_get - risky/external action → USER.md - environment details → TOOLS.md DEFAULT: do not read files.",
+  // ];
 
   const lines = [
     "You are a personal assistant running inside OpenClaw.",
@@ -395,7 +395,7 @@ export function buildAgentSystemPrompt(params: {
     "",
     ...safetySection,
     "",
-    // ...skillsSection,
+    ...skillsSection,
     ...memorySection,
     // Skip self-update for subagent/none modes
     hasGateway && !isMinimal ? "## OpenClaw Self-Update" : "",
@@ -522,7 +522,7 @@ export function buildAgentSystemPrompt(params: {
   if (reasoningHint) {
     lines.push("## Reasoning Format", reasoningHint, "");
   }
-  lines.push(...mandatoryInstructions);
+  // lines.push(...mandatoryInstructions);
   const contextFiles = params.contextFiles ?? [];
   if (contextFiles.length > 0) {
     const hasSoulFile = contextFiles.some((file) => {
